@@ -5,17 +5,11 @@ publish_module:
   stage: deploy
   image: curlimages/curl:latest
 
-
   script:
     - MODULE_NAME="${CI_PROJECT_NAME}"
     - MODULE_SYSTEM="s3"
     - MODULE_VERSION="${CI_COMMIT_TAG}"
-
-    - tar -czf "/tmp/${MODULE_NAME}-${MODULE_SYSTEM}-${MODULE_VERSION}.tgz" \
-        --exclude="./.git" \
-        --exclude="./.terraform" \
-        --exclude="./.terraform.lock.hcl" \
-        .
+    - tar -czf "/tmp/${MODULE_NAME}-${MODULE_SYSTEM}-${MODULE_VERSION}.tgz" --exclude="./.git" --exclude="./.terraform" --exclude="./.terraform.lock.hcl" .
 
     - >
       curl --fail-with-body
