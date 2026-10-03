@@ -1,0 +1,28 @@
+stages:
+  - deploy
+
+publish_module:
+  stage: deploy
+  image: curlimages/curl:latest
+
+
+  script:
+    - MODULE_NAME="${CI_PROJECT_NAME}"
+    - MODULE_SYSTEM="s3"
+    - MODULE_VERSION="${CI_COMMIT_TAG}"
+
+    - tar -czf "/tmp/${MODULE_NAME}-${MODULE_SYSTEM}-${MODULE_VERSION}.tgz" \
+        --exclude="./.git" \
+        --exclude="./.terraform" \
+        --exclude="./.terraform.lock.hcl" \
+        .
+
+    - >
+      curl --fail-with-body
+      --location
+      --header "JOB-TOKEN: ${CI_JOB_TOKEN}"
+      --upload-file "/tmp/${MODULE_NAME}-${MODULE_SYSTEM}-${MODULE_VERSION}.tgz"
+      "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/terraform/modules/${MODULE_NAME}/${MODULE_SYSTEM}/${MODULE_VERSION}/file"
+
+  rules:
+    - if: '$CI_COMMIT_TAG'
